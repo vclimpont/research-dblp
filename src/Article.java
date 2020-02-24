@@ -21,12 +21,13 @@ public class Article {
 			e.printStackTrace();
 		}
 		
-		keys = separateKeys(_keys);
+		keys = splitKeys(_keys);
 	}
 
-	private ArrayList<String> separateKeys(String _keys) {
+	private ArrayList<String> splitKeys(String _keys) {
 		
 		ArrayList<String> k = new ArrayList<String>();
+		// example to change when we have concrete data
 		k.add("dm");
 		k.add("ai");
 		k.add("bi");

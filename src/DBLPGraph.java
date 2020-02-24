@@ -1,14 +1,15 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 
 public class DBLPGraph {
 
-	private Graph graph;
-	private HashMap<String, ArrayList<Article>> keysToArticles;
-	private HashMap<String, ArrayList<Article>> yearToArticles;
+	private Graph graph; // Main graph with dates and keywords as nodes and number of articles as edges
+	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
+	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
 	
 	public DBLPGraph(int nbYears, String firstYear)
 	{
@@ -33,15 +34,70 @@ public class DBLPGraph {
 	
 	public void readData(String[] data)
 	{
-		// Créer un nouvel article 
+		// create new article based on data
+		Article art = new Article("title", "dm,ai,bi", "http://google.com", "2010");
+
+		// add this article in hashmap at the given year
+		addArticleToYear(art.getYear(), art);
 		
-		// Ajouter l'article à chaque liste de ses MC dans la hashmap (si le MC n'existe pas, le créer)
+		// create the node of the year if it does not exist 
+		if(graph.getNode(art.getYear()) == null)
+		{
+			graph.addNode(art.getYear());
+		}
+		 
+		// for each keyword of this article
+		for(String key : art.getKeys())
+		{
+			// add this article in hashmap at the given keyword
+			addArticleToKey(key, art);
+			
+			// create the node of the keyword if it does not exist
+			if(graph.getNode(key) == null)
+			{
+				graph.addNode(key);
+			}
+			
+			// create an edge between keyword and year if it does not exist / otherwhise increment the weight
+			if(graph.getEdge(key + art.getYear()) == null)
+			{
+				Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
+				e.setAttribute("weight", 1);
+			}
+			else
+			{
+				Edge e = graph.getEdge(key + art.getYear());
+				double w = e.getNumber("weight");
+				e.setAttribute("weight", w + 1);
+			}
+		}
+	}
+
+
+	private void addArticleToYear(String year, Article art) {
 		
-		// Ajouter l'article à la liste de son année de publi dans la hashmap
+		yearToArticles.get(year).add(art);
+	}
+
+
+	private void addArticleToKey(String key, Article art) {
 		
-		// Créer un noeud pour chaque MC s'ils existent pas 
-		
-		// Créer l'arête MC-année. Si elle existe déjà, incrémenter le poids
+		ArrayList<Article> articles = keysToArticles.get(key);
+		if(articles == null)
+		{
+			ArrayList<Article> newArticles = new ArrayList<Article>();
+			newArticles.add(art);
+			keysToArticles.put(key, newArticles);
+		}
+		else
+		{
+			articles.add(art);
+		}
+	}
+	
+	public void displayGraph()
+	{
+		graph.display();
 	}
 }
 
