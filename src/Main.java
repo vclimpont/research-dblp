@@ -6,11 +6,14 @@ import java.util.Stack;
 
 public class Main {
 
-	public static HashMap<String, Publication> publications;
+	public static HashMap<String, Article> articles;
 	public static Stack<ApiThread> runningThread;
 	
 	public static void main(String[] args) throws Exception {
 		new Main();
+		
+		DBLPGraph dblpg = new DBLPGraph();
+		dblpg.readArticles();
     }
 	
 	private void setDataFromDblp() {
@@ -23,7 +26,7 @@ public class Main {
 	
 	public Main() {
 
-		publications = new HashMap<String, Publication>();
+		articles = new HashMap<String, Article>();
 		runningThread = new Stack<>();
 		
 		setDataFromDblp();
@@ -39,7 +42,7 @@ public class Main {
 
 	    try {
 		    BufferedWriter writer = new BufferedWriter(new FileWriter("publication.txt"));
-			for (Publication p : publications.values()) {
+			for (Article p : articles.values()) {
 				writer.write(p.getTitle()+"\n");
 			}
 			writer.close();

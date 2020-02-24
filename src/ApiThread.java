@@ -35,7 +35,7 @@ public class ApiThread extends Thread implements Runnable {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 		  	SAXParser saxParser;
   			saxParser = factory.newSAXParser();
-			saxParser.parse(new InputSource(new StringReader(xmlString)), new PublicationHandler());
+			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler());
 			System.out.println("https://dblp.org/search/publ/api?q=e&h="+h+"&f="+f);
 			Main.runningThread.removeElement(this);
 		} catch (SAXException | IOException | ParserConfigurationException e) {

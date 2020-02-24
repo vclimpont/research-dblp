@@ -4,35 +4,18 @@ import java.util.ArrayList;
 
 public class Article {
 
-	private String title; 
-	private ArrayList<String> keys;
-	private URL url;
+	private String id;
+	private String title;
 	private String year;
+	private ArrayList<String> keywords;
+	private URL url;
 	
-	public Article(String _title, String _keys, String _url, String _year)
-	{
-		title = _title; 
-		year = _year; 
-		
-		try {
-			url = new URL(_url);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		keys = splitKeys(_keys);
+	public Article(String id) {
+		this.id = id;
 	}
 
-	private ArrayList<String> splitKeys(String _keys) {
-		
-		ArrayList<String> k = new ArrayList<String>();
-		// example to change when we have concrete data
-		k.add("dm");
-		k.add("ai");
-		k.add("bi");
-		
-		return k;
+	public String getId() {
+		return id;
 	}
 
 	public String getTitle() {
@@ -43,12 +26,28 @@ public class Article {
 		this.title = title;
 	}
 
-	public ArrayList<String> getKeys() {
-		return keys;
+	public String getYear() {
+		return year;
 	}
 
-	public void setKeys(ArrayList<String> keys) {
-		this.keys = keys;
+	public void setYear(String year) {
+		this.year = year;
+	}
+
+	public ArrayList<String> getKeywords() {
+		return keywords;
+	}
+
+	public void setKeywords(ArrayList<String> keywords) {
+		this.keywords = keywords;
+	}
+
+	public void setKeywords(String keywords) {
+		ArrayList<String> keys = new ArrayList<String>();
+		for(String s : keywords.split("/")) {
+			keys.add(s);
+		}
+		this.keywords = keys;
 	}
 
 	public URL getUrl() {
@@ -59,12 +58,18 @@ public class Article {
 		this.url = url;
 	}
 
-	public String getYear() {
-		return year;
-	}
-
-	public void setYear(String year) {
-		this.year = year;
+	public void setUrl(String url) {
+		try {
+			URL u = new URL(url);
+			this.url = u;
+		} catch (MalformedURLException e) {}
 	}
 	
+	public String toString() {
+		return "[" + id + "] " +
+				"\n - titre : " + title +
+				"\n - année : " + year +
+				"\n - mots-clés : " + keywords + 
+				"\n - url : " + url;
+	}
 }

@@ -11,16 +11,15 @@ public class DBLPGraph {
 	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
 	
-	public DBLPGraph(int nbYears, String firstYear)
+	public DBLPGraph()
 	{
 		graph = new SingleGraph("DBLPGraph");
 		keysToArticles = new HashMap<String, ArrayList<Article>>();
 		yearToArticles = new HashMap<String, ArrayList<Article>>();
 		
-		initYears(nbYears, firstYear);
 	}
 	
-
+/*
 	private void initYears(int nbYears, String firstYear) {
 		
 		int k = Integer.parseInt(firstYear);
@@ -31,44 +30,47 @@ public class DBLPGraph {
 			graph.addNode(Integer.toString(i));
 		}
 	}
+	*/
 	
-	public void readData(String[] data)
+	public void readArticles()
 	{
-		// create new article based on data
-		Article art = new Article("title", "dm,ai,bi", "http://google.com", "2010");
+		for(String id : Main.articles.keySet())
+		{
+			Article art = Main.articles.get(id);
 
-		// add this article in hashmap at the given year
-		addArticleToYear(art.getYear(), art);
-		
-		// create the node of the year if it does not exist 
-		if(graph.getNode(art.getYear()) == null)
-		{
-			graph.addNode(art.getYear());
-		}
-		 
-		// for each keyword of this article
-		for(String key : art.getKeys())
-		{
-			// add this article in hashmap at the given keyword
-			addArticleToKey(key, art);
+			// add this article in hashmap at the given year
+			addArticleToYear(art.getYear(), art);
 			
-			// create the node of the keyword if it does not exist
-			if(graph.getNode(key) == null)
+			// create the node of the year if it does not exist 
+			if(graph.getNode(art.getYear()) == null)
 			{
-				graph.addNode(key);
+				graph.addNode(art.getYear());
 			}
-			
-			// create an edge between keyword and year if it does not exist / otherwhise increment the weight
-			if(graph.getEdge(key + art.getYear()) == null)
+			 
+			// for each keyword of this article
+			for(String key : art.getKeywords())
 			{
-				Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
-				e.setAttribute("weight", 1);
-			}
-			else
-			{
-				Edge e = graph.getEdge(key + art.getYear());
-				double w = e.getNumber("weight");
-				e.setAttribute("weight", w + 1);
+				// add this article in hashmap at the given keyword
+				addArticleToKey(key, art);
+				
+				// create the node of the keyword if it does not exist
+				if(graph.getNode(key) == null)
+				{
+					graph.addNode(key);
+				}
+				
+				// create an edge between keyword and year if it does not exist / otherwhise increment the weight
+				if(graph.getEdge(key + art.getYear()) == null)
+				{
+					Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
+					e.setAttribute("weight", 1);
+				}
+				else
+				{
+					Edge e = graph.getEdge(key + art.getYear());
+					double w = e.getNumber("weight");
+					e.setAttribute("weight", w + 1);
+				}
 			}
 		}
 	}
@@ -76,7 +78,17 @@ public class DBLPGraph {
 
 	private void addArticleToYear(String year, Article art) {
 		
-		yearToArticles.get(year).add(art);
+		ArrayList<Article> articles = yearToArticles.get(year);
+		if(articles == null)
+		{
+			ArrayList<Article> newArticles = new ArrayList<Article>();
+			newArticles.add(art);
+			keysToArticles.put(year, newArticles);
+		}
+		else
+		{
+			articles.add(art);
+		}
 	}
 
 

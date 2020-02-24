@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class PublicationHandler extends DefaultHandler {
+public class ArticleHandler extends DefaultHandler {
 
 	public static final String tag_publication = "hit";	
 	public static final String tag_title = "title";
@@ -13,11 +13,11 @@ public class PublicationHandler extends DefaultHandler {
 	public static final String tag_url = "ee";
 	
 	private Stack<String> elementStack;
-	private Stack<Publication> publicationStack;
+	private Stack<Article> publicationStack;
 	
-	public PublicationHandler() {
+	public ArticleHandler() {
 		elementStack = new Stack<String>();
-		publicationStack = new Stack<Publication>();
+		publicationStack = new Stack<Article>();
 	}
 	
 	public void startElement(String namespaceURI, String localName, String qName, Attributes attributes) throws SAXException {
@@ -25,7 +25,7 @@ public class PublicationHandler extends DefaultHandler {
         this.elementStack.push(qName);
 
         if (qName.equals(tag_publication)) {
-        	this.publicationStack.add(new Publication(attributes.getValue("id")));
+        	this.publicationStack.add(new Article(attributes.getValue("id")));
         }
     }
  
@@ -35,7 +35,7 @@ public class PublicationHandler extends DefaultHandler {
         
         if (qName.equals(tag_publication)) {
         	if(!publicationStack.empty()) {
-        		Main.publications.put(publicationStack.peek().getId(), publicationStack.peek());
+        		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
                 this.publicationStack.pop();
         	}
         }
