@@ -1,11 +1,13 @@
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Publication {
 
 	private String id;
 	private String title;
 	private String year;
-	private String[] keywords;
+	private ArrayList<String> keywords;
 	private URL url;
 	
 	public Publication(String id) {
@@ -32,12 +34,20 @@ public class Publication {
 		this.year = year;
 	}
 
-	public String[] getKeywords() {
+	public ArrayList<String> getKeywords() {
 		return keywords;
 	}
 
-	public void setKeywords(String[] keywords) {
+	public void setKeywords(ArrayList<String> keywords) {
 		this.keywords = keywords;
+	}
+
+	public void setKeywords(String keywords) {
+		ArrayList<String> keys = new ArrayList<String>();
+		for(String s : keywords.split("/")) {
+			keys.add(s);
+		}
+		this.keywords = keys;
 	}
 
 	public URL getUrl() {
@@ -47,8 +57,19 @@ public class Publication {
 	public void setUrl(URL url) {
 		this.url = url;
 	}
+
+	public void setUrl(String url) {
+		try {
+			URL u = new URL(url);
+			this.url = u;
+		} catch (MalformedURLException e) {}
+	}
 	
 	public String toString() {
-		return "[" + id + "] " + title;
+		return "[" + id + "] " +
+				"\n - titre : " + title +
+				"\n - année : " + year +
+				"\n - mots-clés : " + keywords + 
+				"\n - url : " + url;
 	}
 }
