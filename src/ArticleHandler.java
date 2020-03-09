@@ -1,3 +1,4 @@
+import java.io.ObjectOutputStream;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
@@ -9,15 +10,18 @@ public class ArticleHandler extends DefaultHandler {
 	public static final String tag_publication = "hit";	
 	public static final String tag_title = "title";
 	public static final String tag_year = "year";
-	public static final String tag_keywords = "key";
 	public static final String tag_url = "ee";
 	
 	private Stack<String> elementStack;
 	private Stack<Article> publicationStack;
 	
-	public ArticleHandler() {
+	private ObjectOutputStream objectOut;
+	
+	public ArticleHandler(ObjectOutputStream _objectOut) {
 		elementStack = new Stack<String>();
 		publicationStack = new Stack<Article>();
+		objectOut = _objectOut;
+		System.out.println(_objectOut);
 	}
 	
 	public void startElement(String namespaceURI, String localName, String qName, Attributes attributes) throws SAXException {
@@ -36,6 +40,7 @@ public class ArticleHandler extends DefaultHandler {
         if (qName.equals(tag_publication)) {
         	if(!publicationStack.empty()) {
         		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
+        		this.writeArticleInFile(publicationStack.peek());
                 this.publicationStack.pop();
         	}
         }
@@ -48,11 +53,17 @@ public class ArticleHandler extends DefaultHandler {
         		publicationStack.peek().setTitle(new String(ch, start, length));
         	} else if(elementStack.peek().equals(tag_year)) {
         		publicationStack.peek().setYear(new String(ch, start, length));
-        	} else if(elementStack.peek().equals(tag_keywords)) {
-        		publicationStack.peek().setKeywords(new String(ch, start, length));
         	} else if(elementStack.peek().equals(tag_url)) {
         		publicationStack.peek().setUrl(new String(ch, start, length));
         	}
     	}
+    }
+    
+    private void writeArticleInFile(Article article) {
+    	try {
+            objectOut.writeObject(article); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

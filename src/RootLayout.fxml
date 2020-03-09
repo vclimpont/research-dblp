@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@Resources/lightTheme.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+   <top>
+    <MenuBar prefWidth="800.0" BorderPane.alignment="CENTER">
+      <menus>
+        <Menu mnemonicParsing="false" text="Fichier">
+          <items>
+                  <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#open" text="Ouvrir">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#quit" text="Fermer">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Thèmes">
+          <items>
+                  <MenuItem fx:id="theme_buttonDark" mnemonicParsing="false" onAction="#setDarkTheme" text="Dark Theme" />
+                  <MenuItem fx:id="theme_lightDefault" mnemonicParsing="false" onAction="#setLightTheme" text="Light Theme" />
+          </items>
+        </Menu>
+            <Menu mnemonicParsing="false" text="Aide">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#showHelp" text="Commandes" />
+                  <MenuItem mnemonicParsing="false" onAction="#showlegend" text="Légende" />
+              </items>
+            </Menu>
+      </menus>
+    </MenuBar>
+   </top>
+</BorderPane>

@@ -1,9 +1,11 @@
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class Article {
+public class Article implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String title;
 	private String year;
@@ -24,6 +26,7 @@ public class Article {
 
 	public void setTitle(String title) {
 		this.title = title;
+		this.setKeywordsFromTitle(title);
 	}
 
 	public String getYear() {
@@ -42,10 +45,11 @@ public class Article {
 		this.keywords = keywords;
 	}
 
-	public void setKeywords(String keywords) {
+	public void setKeywordsFromTitle(String keywords) {
 		ArrayList<String> keys = new ArrayList<String>();
-		for(String s : keywords.split("/")) {
-			keys.add(s);
+		for(String word : keywords.split(" ")) {
+			if(word.length() > 3)
+				keys.add(word);
 		}
 		this.keywords = keys;
 	}

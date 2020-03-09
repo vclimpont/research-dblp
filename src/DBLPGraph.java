@@ -83,7 +83,7 @@ public class DBLPGraph {
 		{
 			ArrayList<Article> newArticles = new ArrayList<Article>();
 			newArticles.add(art);
-			keysToArticles.put(year, newArticles);
+			yearToArticles.put(year, newArticles);
 		}
 		else
 		{
@@ -110,6 +110,30 @@ public class DBLPGraph {
 	public void displayGraph()
 	{
 		graph.display();
+	}
+
+	public Graph getGraph() {
+		return graph;
+	}
+
+	public void setGraph(Graph graph) {
+		this.graph = graph;
+	}
+
+	public HashMap<String, ArrayList<Article>> getKeysToArticles() {
+		return keysToArticles;
+	}
+
+	public void setKeysToArticles(HashMap<String, ArrayList<Article>> keysToArticles) {
+		this.keysToArticles = keysToArticles;
+	}
+
+	public HashMap<String, ArrayList<Article>> getYearToArticles() {
+		return yearToArticles;
+	}
+
+	public void setYearToArticles(HashMap<String, ArrayList<Article>> yearToArticles) {
+		this.yearToArticles = yearToArticles;
 	}
 }
 
