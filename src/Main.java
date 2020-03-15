@@ -221,9 +221,9 @@ public class Main extends Application {
 		// En attendant :
 		searchedWords.add("e");
 		
-		if(isSaveFile())
-			setDataFromSaveFile();
-		else
+		//if(isSaveFile())
+		//	setDataFromSaveFile();
+		//else
 			setDataFromDblp();
 		
 

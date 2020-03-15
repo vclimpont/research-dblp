@@ -50,7 +50,11 @@ public class Article implements Serializable {
 		ArrayList<String> keys = new ArrayList<String>();
 		for(String word : keywords.split(" ")) {
 			if(word.length() > 3)
-				keys.add(word);
+			{
+				String lettersOnly = word.replaceAll("[^a-zA-Z0-9]", "");
+				String wlc = lettersOnly.toLowerCase();
+				keys.add(wlc);
+			}
 		}
 		this.keywords = keys;
 	}
