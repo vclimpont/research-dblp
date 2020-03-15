@@ -5,5 +5,25 @@ node.year {
 }
 node.keyword {
 	size: 15px;
-	fill-color: blue;
+	fill-color: #0000FF;
+}
+
+node.year_transparent {
+	size: 15px;
+	shape: triangle;
+	fill-color: #FF000022;
+}
+node.keyword_transparent {
+	size: 15px;
+	fill-color : #0000FF22;
+}
+edge {
+	shape: line;
+	arrow-size : 1px, 1px;
+	fill-color : #222222;
+}
+edge.transparent {
+	shape: line;
+	arrow-size : 1px, 1px;
+	fill-color : #22222210;
 }

@@ -21,7 +21,6 @@ public class ArticleHandler extends DefaultHandler {
 		elementStack = new Stack<String>();
 		publicationStack = new Stack<Article>();
 		objectOut = _objectOut;
-		System.out.println(_objectOut);
 	}
 	
 	public void startElement(String namespaceURI, String localName, String qName, Attributes attributes) throws SAXException {

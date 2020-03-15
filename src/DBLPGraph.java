@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.graphstream.graph.Edge;
@@ -141,7 +142,72 @@ public class DBLPGraph {
 			articles.add(art);
 		}
 	}
+
+	/**
+	 * Set the edge transparent or not, depending on the 2nd param
+	 * @param elem : an Edge
+	 * @param isTransparent : should this element be transparent ?
+	 */
+	public void setEdgeTransparency(Edge elem, boolean isTransparent) {
+		if(isTransparent == true) {
+			elem.setAttribute("ui.class", "transparent");
+		} else {
+			elem.removeAttribute("ui.class");
+		}
+	}
+
+	/**
+	 * Set the node transparent or not, depending on the 2nd param
+	 * @param elem : a Node
+	 * @param isTransparent : should this element be transparent ?
+	 */
+	public void setNodeTransparency(Node elem, boolean isTransparent) {
+		String cssClass = ((String)(elem.getAttribute("ui.class"))).split("_")[0];
+		
+		if(isTransparent == true) {
+			elem.setAttribute("ui.class",  cssClass + "_transparent");
+		} else {
+			elem.setAttribute("ui.class", cssClass);
+		}
+	}
 	
+	public void hideUnselectedNode(Node selectedNode) {
+		HashMap<String, Node> neighbours = new HashMap<>();
+		
+		graph.edges().forEach((Edge e)->{
+			setEdgeTransparency(e, true);
+		});
+		
+		// Try to select edges. Can catch a NullPointerException if there are no edges linked to the node
+		try {
+			// Loop over linked edges
+			selectedNode.edges().forEach(e->{
+				setEdgeTransparency(e, false);
+				if(e.getNode0().getId() == selectedNode.getId()) {
+					neighbours.put(e.getNode1().getId(), e.getNode1());
+				} else {
+					neighbours.put(e.getNode0().getId(), e.getNode0());
+				}
+			});
+		} catch(NullPointerException e) {
+			System.err.println("No edges");
+		}
+		graph.nodes().forEach((Node n)->{
+			if(n.getId() == selectedNode.getId() || neighbours.get(n.getId()) != null)
+				setNodeTransparency(n, false);
+			else
+				setNodeTransparency(n, true);
+		});
+	}
+
+	public void showAllNode() {
+		// For each nodes
+		graph.nodes().forEach((Node n)->{
+			setNodeTransparency(n, false);
+		});
+		// Remove the class attribute for each edges
+		graph.edges().forEach(e->setEdgeTransparency(e, false));
+	}
 	public void displayGraph() {
 		//graph.display();
 	}
