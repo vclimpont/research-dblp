@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -18,16 +19,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.graphstream.graph.Node;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
+import org.graphstream.ui.view.util.InteractiveElement;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
+	
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -50,6 +54,8 @@ public class Main extends Application {
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
+	
+	private DBLPGraph dblpg;
 	
 	public static void main(String[] args) throws Exception {
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -183,7 +189,7 @@ public class Main extends Application {
 	 * Initialize a graph with the articles get previously
 	 */
 	private void initGraph() {
-		DBLPGraph dblpg = new DBLPGraph();
+		dblpg = new DBLPGraph();
 		dblpg.readArticles();
 
 		// Create a graph viewer, which will contains the graph
@@ -198,6 +204,8 @@ public class Main extends Application {
 	 */
 	private void initStage() {
 		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
+
+        panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
 		
 		BorderPane bp = new BorderPane();
 		bp.setCenter(panelGraph);
@@ -221,9 +229,9 @@ public class Main extends Application {
 		// En attendant :
 		searchedWords.add("e");
 		
-		//if(isSaveFile())
-		//	setDataFromSaveFile();
-		//else
+		if(isSaveFile())
+			setDataFromSaveFile();
+		else
 			setDataFromDblp();
 		
 
@@ -255,5 +263,24 @@ public class Main extends Application {
 		primaryStage.close();
         Platform.exit();
         System.exit(0);
+	}
+	
+	class MousePressGraph implements EventHandler<MouseEvent> {
+
+		/**
+		 * function called when pressing the mouse button on the view
+		 */
+		@Override
+		public void handle(MouseEvent event) {
+			MouseEvent me = ((MouseEvent) event);
+			// Find the node we click on
+			Node n = (Node) panelGraph.findGraphicElementAt(EnumSet.of(InteractiveElement.NODE), me.getX(), me.getY());
+			// IF n == null -> means we did'nt click on a node
+			if(n != null) {
+				dblpg.hideUnselectedNode(n);
+			} else {
+				dblpg.showAllNode();
+			}
+		}
 	}
 }
