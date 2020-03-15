@@ -1,0 +1,9 @@
+node.year {
+	size: 15px;
+	shape: triangle;
+	fill-color: red;
+}
+node.keyword {
+	size: 15px;
+	fill-color: blue;
+}

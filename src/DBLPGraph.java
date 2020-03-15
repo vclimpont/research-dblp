@@ -3,10 +3,13 @@ import java.util.HashMap;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
 public class DBLPGraph {
 
+	public static final String NODE_TYPE_YEAR = "year";
+	public static final String NODE_TYPE_KEYWORD = "keyword";
 	private Graph graph; // Main graph with dates and keywords as nodes and number of articles as edges
 	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
@@ -14,9 +17,9 @@ public class DBLPGraph {
 	public DBLPGraph()
 	{
 		graph = new SingleGraph("DBLPGraph");
+		graph.setAttribute("ui.stylesheet", "url('file://.//src//style.css')");
 		keysToArticles = new HashMap<String, ArrayList<Article>>();
 		yearToArticles = new HashMap<String, ArrayList<Article>>();
-		
 	}
 	
 /*
@@ -44,7 +47,8 @@ public class DBLPGraph {
 			// create the node of the year if it does not exist 
 			if(graph.getNode(art.getYear()) == null)
 			{
-				graph.addNode(art.getYear());
+				Node n = graph.addNode(art.getYear());
+				n.setAttribute("ui.class", NODE_TYPE_YEAR);
 			}
 			 
 			// for each keyword of this article
@@ -56,7 +60,8 @@ public class DBLPGraph {
 				// create the node of the keyword if it does not exist
 				if(graph.getNode(key) == null)
 				{
-					graph.addNode(key);
+					Node n = graph.addNode(key);
+					n.setAttribute("ui.class", NODE_TYPE_KEYWORD);
 				}
 				
 				// create an edge between keyword and year if it does not exist / otherwhise increment the weight
@@ -107,9 +112,8 @@ public class DBLPGraph {
 		}
 	}
 	
-	public void displayGraph()
-	{
-		graph.display();
+	public void displayGraph() {
+		//graph.display();
 	}
 
 	public Graph getGraph() {

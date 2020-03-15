@@ -13,6 +13,7 @@ public class Article implements Serializable {
 	private URL url;
 	
 	public Article(String id) {
+		this.keywords = new ArrayList<String>();
 		this.id = id;
 	}
 
