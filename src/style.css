@@ -1,9 +1,36 @@
 node.year {
-	size: 15px;
 	shape: triangle;
-	fill-color: red;
 }
 node.keyword {
-	size: 15px;
-	fill-color: blue;
+	shape: circle;
+}
+
+node.blue {
+	fill-color : blue;
+	z-index : 2;
+	size : 20px;
+}
+
+node.green {
+	fill-color : green;
+	z-index : 3;
+	size : 25px;
+}
+
+node.yellow {
+	fill-color : yellow;
+	z-index : 4;
+	size : 30px;
+}
+
+node.orange {
+	fill-color : orange;
+	z-index : 5;
+	size : 35px;
+}
+
+node.red {
+	fill-color : red;
+	z-index : 6;
+	size : 40px;
 }

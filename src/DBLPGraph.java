@@ -14,6 +14,7 @@ public class DBLPGraph {
 	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
 	private HashMap<String, Integer> keywordsCount;
+	private HashMap<String, Integer> yearsCount;
 	
 	public DBLPGraph()
 	{
@@ -22,6 +23,8 @@ public class DBLPGraph {
 		keysToArticles = new HashMap<String, ArrayList<Article>>();
 		yearToArticles = new HashMap<String, ArrayList<Article>>();
 		keywordsCount = new HashMap<String, Integer>();
+		yearsCount = new HashMap<String, Integer>();
+
 	}
 	
 /*
@@ -37,7 +40,7 @@ public class DBLPGraph {
 	}
 	*/
 	
-	public void keywordProcessing()
+	private void keywordProcessing()
 	{
 		for(String id : Main.articles.keySet()) 
 		{
@@ -58,6 +61,20 @@ public class DBLPGraph {
 		}
 	}
 	
+	private void addWeightToYear(String year)
+	{
+		Integer count = yearsCount.get(year);
+		if(count == null)
+		{
+			yearsCount.put(year, new Integer(1));
+		}
+		else
+		{
+			Integer newCount = new Integer(count + 1);
+			yearsCount.put(year, newCount);
+		}
+	}
+	
 	public void readArticles()
 	{
 		keywordProcessing();
@@ -65,24 +82,23 @@ public class DBLPGraph {
 		for(String id : Main.articles.keySet())
 		{
 			Article art = Main.articles.get(id);
-
-			// add this article in hashmap at the given year
-			addArticleToYear(art.getYear(), art);
-			
-			// create the node of the year if it does not exist 
-			if(graph.getNode(art.getYear()) == null)
-			{
-				Node n = graph.addNode(art.getYear());
-				n.setAttribute("ui.class", NODE_TYPE_YEAR);
-			}
 			 
 			// for each keyword of this article
 			for(String key : art.getKeywords())
 			{
 				Integer count = keywordsCount.get(key);
-				System.out.println(key + " " + count);
 				if(count != null && count > 100)
 				{
+					// add this article in hashmap at the given year
+					addArticleToYear(art.getYear(), art);
+					
+					// create the node of the year if it does not exist 
+					if(graph.getNode(art.getYear()) == null)
+					{
+						Node n = graph.addNode(art.getYear());
+						n.setAttribute("ui.class", NODE_TYPE_YEAR);
+					}
+					
 					// add this article in hashmap at the given keyword
 					addArticleToKey(key, art);
 					
@@ -98,13 +114,74 @@ public class DBLPGraph {
 					{
 						Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
 						e.setAttribute("weight", 1);
+						addWeightToYear(art.getYear());
 					}
 					else
 					{
 						Edge e = graph.getEdge(key + art.getYear());
 						double w = e.getNumber("weight");
 						e.setAttribute("weight", w + 1);
+						addWeightToYear(art.getYear());
 					}
+				}
+			}
+		}
+		
+		setCentrality();
+	}
+	
+	private void setCentrality()
+	{
+		for(Object o : graph.nodes().toArray())
+		{
+			Node n = ((Node)o);
+			String type = (String) n.getAttribute("ui.class");
+			Integer yc = yearsCount.get(n.getId());
+			Integer kc = keywordsCount.get(n.getId());
+			if(yc != null)
+			{
+				if(yc < 10)
+				{
+					n.setAttribute("ui.class", type+", blue");
+				}
+				else if(yc < 20)
+				{
+					n.setAttribute("ui.class", type+", green");
+				}
+				else if(yc < 30)
+				{
+					n.setAttribute("ui.class", type+", yellow");
+				}
+				else if(yc < 40)
+				{
+					n.setAttribute("ui.class", type+", orange");
+				}
+				else
+				{
+					n.setAttribute("ui.class", type+", red");
+				}
+			}
+			else if(kc != null)
+			{
+				if(kc < 10)
+				{
+					n.setAttribute("ui.class", type+", blue");
+				}
+				else if(kc < 50)
+				{
+					n.setAttribute("ui.class", type+", green");
+				}
+				else if(kc < 100)
+				{
+					n.setAttribute("ui.class", type+", yellow");
+				}
+				else if(kc < 500)
+				{
+					n.setAttribute("ui.class", type+", orange");
+				}
+				else
+				{
+					n.setAttribute("ui.class", type+", red");
 				}
 			}
 		}
