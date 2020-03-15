@@ -75,6 +75,7 @@ public class DBLPGraph {
 			{
 				Node n = graph.addNode(art.getYear());
 				n.setAttribute("ui.class", NODE_TYPE_YEAR);
+				n.setAttribute("ui.label", art.getYear());
 			}
 			 
 			// for each keyword of this article

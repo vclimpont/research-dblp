@@ -2,6 +2,7 @@ node.year {
 	size: 15px;
 	shape: triangle;
 	fill-color: red;
+	text-mode: normal;
 }
 node.keyword {
 	size: 15px;
@@ -12,6 +13,7 @@ node.year_transparent {
 	size: 15px;
 	shape: triangle;
 	fill-color: #FF000022;
+	text-mode: hidden;
 }
 node.keyword_transparent {
 	size: 15px;
