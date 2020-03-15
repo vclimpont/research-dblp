@@ -10,13 +10,14 @@ public class DBLPGraph {
 	private Graph graph; // Main graph with dates and keywords as nodes and number of articles as edges
 	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
+	private HashMap<String, Integer> keywordsCount;
 	
 	public DBLPGraph()
 	{
 		graph = new SingleGraph("DBLPGraph");
 		keysToArticles = new HashMap<String, ArrayList<Article>>();
 		yearToArticles = new HashMap<String, ArrayList<Article>>();
-		
+		keywordsCount = new HashMap<String, Integer>();
 	}
 	
 /*
@@ -32,8 +33,31 @@ public class DBLPGraph {
 	}
 	*/
 	
+	public void keywordProcessing()
+	{
+		for(String id : Main.articles.keySet()) 
+		{
+			Article art = Main.articles.get(id);
+			for(String k : art.getKeywords())
+			{
+				Integer count = keywordsCount.get(k);
+				if(count == null)
+				{
+					keywordsCount.put(k, new Integer(1));
+				}
+				else
+				{
+					Integer newCount = new Integer(count + 1);
+					keywordsCount.put(k, newCount);
+				}
+			}
+		}
+	}
+	
 	public void readArticles()
 	{
+		keywordProcessing();
+		
 		for(String id : Main.articles.keySet())
 		{
 			Article art = Main.articles.get(id);
@@ -50,26 +74,31 @@ public class DBLPGraph {
 			// for each keyword of this article
 			for(String key : art.getKeywords())
 			{
-				// add this article in hashmap at the given keyword
-				addArticleToKey(key, art);
-				
-				// create the node of the keyword if it does not exist
-				if(graph.getNode(key) == null)
+				Integer count = keywordsCount.get(key);
+				System.out.println(key + " " + count);
+				if(count != null && count > 100)
 				{
-					graph.addNode(key);
-				}
-				
-				// create an edge between keyword and year if it does not exist / otherwhise increment the weight
-				if(graph.getEdge(key + art.getYear()) == null)
-				{
-					Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
-					e.setAttribute("weight", 1);
-				}
-				else
-				{
-					Edge e = graph.getEdge(key + art.getYear());
-					double w = e.getNumber("weight");
-					e.setAttribute("weight", w + 1);
+					// add this article in hashmap at the given keyword
+					addArticleToKey(key, art);
+					
+					// create the node of the keyword if it does not exist
+					if(graph.getNode(key) == null)
+					{
+						graph.addNode(key);
+					}
+					
+					// create an edge between keyword and year if it does not exist / otherwhise increment the weight
+					if(graph.getEdge(key + art.getYear()) == null)
+					{
+						Edge e = graph.addEdge(key + art.getYear(), key, art.getYear(), false);
+						e.setAttribute("weight", 1);
+					}
+					else
+					{
+						Edge e = graph.getEdge(key + art.getYear());
+						double w = e.getNumber("weight");
+						e.setAttribute("weight", w + 1);
+					}
 				}
 			}
 		}
