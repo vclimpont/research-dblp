@@ -1,57 +1,73 @@
+/* Nodes type */
 node.year {
 	shape: triangle;
-	text-mode: normal;
 }
 node.keyword {
 	shape: circle;
 }
 
+/* Nodes colors */
 node.blue {
 	fill-color : blue;
 	z-index : 2;
-	size : 20px;
+	size : 15px;
 }
 
 node.green {
 	fill-color : green;
 	z-index : 3;
-	size : 25px;
+	size : 20px;
 }
 
 node.yellow {
 	fill-color : yellow;
 	z-index : 4;
-	size : 30px;
+	size : 25px;
 }
 
 node.orange {
 	fill-color : orange;
 	z-index : 5;
-	size : 35px;
+	size : 30px;
 }
 
 node.red {
 	fill-color : red;
 	z-index : 6;
-	size : 40px;
+	size : 35px;
 }
 
-node.year_transparent {
-	shape: triangle;
-	fill-color: #FF000022;
-	text-mode: hidden;
+/* Nodes colors transparency */
+node.blue_transparent {
+	fill-color : #0000FF55;
 }
-node.keyword_transparent {
-	size: 15px;
-	fill-color : #0000FF22;
+
+node.green_transparent {
+	fill-color : #00FF0055;
 }
+
+node.yellow_transparent {
+	fill-color : #FFFF0055;
+}
+
+node.orange_transparent {
+	fill-color : #FFA50055;
+}
+
+node.red_transparent {
+	fill-color : #FF000055;
+}
+
+/* Edges */
 edge {
-	shape: line;
 	arrow-size : 1px, 1px;
 	fill-color : #222222;
 }
+
+/* Nodes and Edges Transparency */
 edge.transparent {
-	shape: line;
-	arrow-size : 1px, 1px;
 	fill-color : #22222210;
+}
+node.transparent {
+	text-mode: hidden;
 }

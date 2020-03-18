@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.graphstream.graph.Edge;
@@ -11,6 +10,7 @@ public class DBLPGraph {
 
 	public static final String NODE_TYPE_YEAR = "year";
 	public static final String NODE_TYPE_KEYWORD = "keyword";
+	private final String TRANSPARENT = "transparent";
 	private Graph graph; // Main graph with dates and keywords as nodes and number of articles as edges
 	private HashMap<String, ArrayList<Article>> keysToArticles; // Associate a key word to a list of articles
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
@@ -109,6 +109,7 @@ public class DBLPGraph {
 					{
 						Node n = graph.addNode(key);
 						n.setAttribute("ui.class", NODE_TYPE_KEYWORD);
+						n.setAttribute("ui.label", key);
 					}
 					
 					// create an edge between keyword and year if it does not exist / otherwhise increment the weight
@@ -144,46 +145,46 @@ public class DBLPGraph {
 			{
 				if(yc < 10)
 				{
-					n.setAttribute("ui.class", type+", blue");
+					n.setAttribute("ui.class", type+",blue");
 				}
 				else if(yc < 20)
 				{
-					n.setAttribute("ui.class", type+", green");
+					n.setAttribute("ui.class", type+",green");
 				}
 				else if(yc < 30)
 				{
-					n.setAttribute("ui.class", type+", yellow");
+					n.setAttribute("ui.class", type+",yellow");
 				}
 				else if(yc < 40)
 				{
-					n.setAttribute("ui.class", type+", orange");
+					n.setAttribute("ui.class", type+",orange");
 				}
 				else
 				{
-					n.setAttribute("ui.class", type+", red");
+					n.setAttribute("ui.class", type+",red");
 				}
 			}
 			else if(kc != null)
 			{
 				if(kc < 10)
 				{
-					n.setAttribute("ui.class", type+", blue");
+					n.setAttribute("ui.class", type+",blue");
 				}
 				else if(kc < 50)
 				{
-					n.setAttribute("ui.class", type+", green");
+					n.setAttribute("ui.class", type+",green");
 				}
 				else if(kc < 100)
 				{
-					n.setAttribute("ui.class", type+", yellow");
+					n.setAttribute("ui.class", type+",yellow");
 				}
 				else if(kc < 500)
 				{
-					n.setAttribute("ui.class", type+", orange");
+					n.setAttribute("ui.class", type+",orange");
 				}
 				else
 				{
-					n.setAttribute("ui.class", type+", red");
+					n.setAttribute("ui.class", type+",red");
 				}
 			}
 		}
@@ -228,7 +229,7 @@ public class DBLPGraph {
 	 */
 	public void setEdgeTransparency(Edge elem, boolean isTransparent) {
 		if(isTransparent == true) {
-			elem.setAttribute("ui.class", "transparent");
+			elem.setAttribute("ui.class", TRANSPARENT);
 		} else {
 			elem.removeAttribute("ui.class");
 		}
@@ -240,13 +241,16 @@ public class DBLPGraph {
 	 * @param isTransparent : should this element be transparent ?
 	 */
 	public void setNodeTransparency(Node elem, boolean isTransparent) {
-		String cssClass = ((String)(elem.getAttribute("ui.class"))).split("_")[0];
+		String cssType  = ((String)(elem.getAttribute("ui.class"))).split(",")[0];
+		String cssColor = ((String)(elem.getAttribute("ui.class"))).split(",")[1].split("_")[0];
 		
 		if(isTransparent == true) {
-			elem.setAttribute("ui.class",  cssClass + "_transparent");
+			elem.setAttribute("ui.class",  cssType + "," + cssColor + "_" + TRANSPARENT + "," + TRANSPARENT);
 		} else {
-			elem.setAttribute("ui.class", cssClass);
+			elem.setAttribute("ui.class", cssType + "," + cssColor);
 		}
+		System.out.println(elem.getAttribute("ui.class"));
+		
 	}
 	
 	public void hideUnselectedNode(Node selectedNode) {
@@ -276,6 +280,7 @@ public class DBLPGraph {
 			else
 				setNodeTransparency(n, true);
 		});
+		
 	}
 
 	public void showAllNode() {
