@@ -18,7 +18,7 @@ public class InfoYearController {
 	public void initInfoUser(DBLPGraph dblpg, Node n) {
 		nbArticles = 0;
 		
-		yearLabel.setText("@" + n.getId());
+		yearLabel.setText(n.getId());
 		nbKeywordsLabel.setText(Long.toString(n.getDegree()));
 		
 		for(Object o : n.edges().toArray())
