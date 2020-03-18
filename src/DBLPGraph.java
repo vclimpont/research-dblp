@@ -248,9 +248,7 @@ public class DBLPGraph {
 			elem.setAttribute("ui.class",  cssType + "," + cssColor + "_" + TRANSPARENT + "," + TRANSPARENT);
 		} else {
 			elem.setAttribute("ui.class", cssType + "," + cssColor);
-		}
-		System.out.println(elem.getAttribute("ui.class"));
-		
+		}		
 	}
 	
 	public void hideUnselectedNode(Node selectedNode) {
@@ -317,6 +315,22 @@ public class DBLPGraph {
 
 	public void setYearToArticles(HashMap<String, ArrayList<Article>> yearToArticles) {
 		this.yearToArticles = yearToArticles;
+	}
+
+	public HashMap<String, Integer> getKeywordsCount() {
+		return keywordsCount;
+	}
+
+	public void setKeywordsCount(HashMap<String, Integer> keywordsCount) {
+		this.keywordsCount = keywordsCount;
+	}
+
+	public HashMap<String, Integer> getYearsCount() {
+		return yearsCount;
+	}
+
+	public void setYearsCount(HashMap<String, Integer> yearsCount) {
+		this.yearsCount = yearsCount;
 	}
 }
 

@@ -19,6 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
@@ -26,11 +27,16 @@ import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.util.InteractiveElement;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-	
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -51,11 +57,15 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private FxViewPanel panelGraph;
 	private FxViewer viewerGraph;
+	private BorderPane mainPane;
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
 	
+	// Graph and chart
 	private DBLPGraph dblpg;
+	private LineChart<Number, Number> lineChart;
+	private BarChart<String, Number> barChart;
 	
 	public static void main(String[] args) throws Exception {
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -166,7 +176,7 @@ public class Main extends Application {
 				ois.close();
 				fis.close();
 			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
+				System.err.println("End of file reached");
 			}
 		}
 	}
@@ -198,19 +208,49 @@ public class Main extends Application {
 		viewerGraph.enableAutoLayout();
 
 	}
+	
+	private void initLineChart() {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        
+		lineChart = new LineChart<Number,Number>(xAxis, yAxis);
+        
+		yAxis.setLabel("Keywords occurrences");
+		xAxis.setLabel("Years");
+
+		xAxis.setForceZeroInRange(false);
+		yAxis.setForceZeroInRange(false);
+	}
+	
+	private void initBarChart() {
+        final CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        
+		barChart = new BarChart<String,Number>(xAxis, yAxis);
+		
+		yAxis.setLabel("Occurrences");
+		xAxis.setLabel("Keywords");
+	}
 
 	/**
 	 * Setting up a panels, scene and stage for a first window
 	 */
 	private void initStage() {
+
+		initGraph();
+		initLineChart();
+		initBarChart();
+		
 		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
 
         panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
 		
-		BorderPane bp = new BorderPane();
-		bp.setCenter(panelGraph);
+        mainPane = new BorderPane();
+		mainPane.setCenter(panelGraph);
 
-		Scene scene = new Scene(bp);
+		mainPane.setBottom(lineChart);
+		
+		Scene scene = new Scene(mainPane);
 		primaryStage.setScene(scene);
 		
 		primaryStage.show();
@@ -234,8 +274,6 @@ public class Main extends Application {
 		else
 			setDataFromDblp();
 		
-
-		initGraph();
 		initStage();
 		
 
@@ -246,17 +284,53 @@ public class Main extends Application {
  		    	quit();
  		    }
  		});
+	}
+	
+	private void switchChart(Class chartType) {
+		if(chartType.equals(BarChart.class)){
+			mainPane.setBottom(barChart);
+		} else {
+			mainPane.setBottom(lineChart);
+		}
+	}
+	
+	private void setYearInChart(Node selectedYear) {
+
+		XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
+		series.setName("Keywords occurrences for the year " + selectedYear);
+		selectedYear.neighborNodes().forEach((Node n) -> {
+			String year = selectedYear.getId();
+			String keyword = n.getId(); 
+			Edge e = dblpg.getGraph().getEdge(keyword + year);
+			int amountOccurrences = (int)e.getNumber("weight");
+
+			series.getData().add(new XYChart.Data<String, Number>(keyword, (Number)amountOccurrences));
+		});
+		barChart.getData().add(series);
+	}
 		
-	    /* Write titles in file
-	     * try {
-		    BufferedWriter writer = new BufferedWriter(new FileWriter("publication.txt"));
-			for (Article p : articles.values()) {
-				writer.write(p.getTitle()+"\n");
-			}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
+	private void setKeywordInChart(String selectedKeyword) {
+		Node keywordNode = dblpg.getGraph().getNode(selectedKeyword);
+		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+		series.setName("Occurrences of \"" + selectedKeyword + "\"");
+		
+		keywordNode.neighborNodes().forEach((Node n) -> {
+			Edge e = dblpg.getGraph().getEdge(selectedKeyword + n.getId());
+			int amountOccurrences = (int)e.getNumber("weight");
+			int year = Integer.parseInt(n.getId());
+			
+			series.getData().add(new XYChart.Data<Number, Number>((Number)year, (Number)amountOccurrences));
+		});
+
+		lineChart.getData().add(series);
+	}
+	
+	public void cleanCharts() {
+		if(mainPane.getBottom() instanceof LineChart) {
+			lineChart.getData().remove(0, lineChart.getData().size());
+		} else {
+			barChart.getData().remove(0, barChart.getData().size());
+		}
 	}
 	
 	public void quit() {
@@ -277,8 +351,17 @@ public class Main extends Application {
 			Node n = (Node) panelGraph.findGraphicElementAt(EnumSet.of(InteractiveElement.NODE), me.getX(), me.getY());
 			// IF n == null -> means we did'nt click on a node
 			if(n != null) {
+				cleanCharts();
+				if(((String)(n.getAttribute("ui.class"))).contains(DBLPGraph.NODE_TYPE_KEYWORD)) {
+					setKeywordInChart(n.getId());
+					switchChart(LineChart.class);
+				} else {
+					setYearInChart(n);
+					switchChart(BarChart.class);
+				}
 				dblpg.hideUnselectedNode(n);
 			} else {
+				cleanCharts();
 				dblpg.showAllNode();
 			}
 		}
