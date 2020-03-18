@@ -318,11 +318,14 @@ public class Main extends Application {
 				}
 				
 				dblpg.hideUnselectedNode(n);
+				dblpg.hideEdgesLabel();
+				dblpg.showEdgesLabel(n);
 			} else {
 				panelGraph.getChildren().remove(infoPane);
 				infoPane = null;
-				
+		
 				dblpg.showAllNode();
+				dblpg.hideEdgesLabel();
 			}
 		}
 	}

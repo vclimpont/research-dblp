@@ -251,6 +251,23 @@ public class DBLPGraph {
 		}
 	}
 	
+	public void showEdgesLabel(Node selectedNode) {
+		for(Object o : selectedNode.edges().toArray())
+		{
+			Edge e = graph.getEdge(((Edge)o).getId());
+			double w = e.getNumber("weight");
+			e.setAttribute("ui.label", ""+(int)w);
+		}
+	}
+	
+	public void hideEdgesLabel() {
+		for(Object o : graph.edges().toArray())
+		{
+			Edge e = graph.getEdge(((Edge)o).getId());
+			e.removeAttribute("ui.label");
+		}
+	}
+	
 	public void hideUnselectedNode(Node selectedNode) {
 		HashMap<String, Node> neighbours = new HashMap<>();
 		
