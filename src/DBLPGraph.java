@@ -88,7 +88,7 @@ public class DBLPGraph {
 			for(String key : art.getKeywords())
 			{
 				Integer count = keywordsCount.get(key);
-				if(count != null && count > 100)
+				if(count != null && count > 75 && count < 900)
 				{
 					// add this article in hashmap at the given year
 					addArticleToYear(art.getYear(), art);
@@ -249,8 +249,6 @@ public class DBLPGraph {
 		} else {
 			elem.setAttribute("ui.class", cssType + "," + cssColor);
 		}
-		System.out.println(elem.getAttribute("ui.class"));
-		
 	}
 	
 	public void hideUnselectedNode(Node selectedNode) {

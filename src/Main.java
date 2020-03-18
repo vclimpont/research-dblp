@@ -30,6 +30,10 @@ import org.xml.sax.SAXException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -51,6 +55,7 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private FxViewPanel panelGraph;
 	private FxViewer viewerGraph;
+	private BorderPane infoPane;
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
@@ -259,6 +264,11 @@ public class Main extends Application {
 		}*/
 	}
 	
+	public boolean isNodeKeyword(Node n)
+	{
+		return ((String)(n.getAttribute("ui.class"))).contains(DBLPGraph.NODE_TYPE_KEYWORD);
+	}
+	
 	public void quit() {
 		primaryStage.close();
         Platform.exit();
@@ -277,8 +287,41 @@ public class Main extends Application {
 			Node n = (Node) panelGraph.findGraphicElementAt(EnumSet.of(InteractiveElement.NODE), me.getX(), me.getY());
 			// IF n == null -> means we did'nt click on a node
 			if(n != null) {
+				if(infoPane != null) {
+					panelGraph.getChildren().remove(infoPane);
+				}
+				
+		        try {
+
+					FXMLLoader loader = new FXMLLoader();
+					
+					// if the selected node represents a community (not a user)
+					if(isNodeKeyword(n)) {
+						loader.setLocation(Main.class.getResource("InfoKeywordView.fxml"));
+						infoPane = loader.load();
+						InfoKeywordController keywordController = (InfoKeywordController) loader.getController();
+						keywordController.initInfoUser(dblpg, n);
+					} else { // if not, it represents a user
+						loader.setLocation(Main.class.getResource("InfoYearView.fxml"));
+						infoPane = loader.load();
+						InfoYearController yearController = (InfoYearController) loader.getController();
+						yearController.initInfoUser(dblpg, n);
+					}
+					FxViewPanel.positionInArea(infoPane, me.getX(), me.getY(), 0, 0, 0, Insets.EMPTY, HPos.LEFT, VPos.CENTER, true);
+					
+					panelGraph.getChildren().add(infoPane);
+					
+					infoPane.getStylesheets().clear();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
 				dblpg.hideUnselectedNode(n);
 			} else {
+				panelGraph.getChildren().remove(infoPane);
+				infoPane = null;
+				
 				dblpg.showAllNode();
 			}
 		}
