@@ -31,6 +31,10 @@ import org.xml.sax.SAXException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -58,6 +62,7 @@ public class Main extends Application {
 	private FxViewPanel panelGraph;
 	private FxViewer viewerGraph;
 	private BorderPane mainPane;
+	private BorderPane infoPane;
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
@@ -333,6 +338,11 @@ public class Main extends Application {
 		}
 	}
 	
+	public boolean isNodeKeyword(Node n)
+	{
+		return ((String)(n.getAttribute("ui.class"))).contains(DBLPGraph.NODE_TYPE_KEYWORD);
+	}
+	
 	public void quit() {
 		primaryStage.close();
         Platform.exit();
@@ -359,10 +369,47 @@ public class Main extends Application {
 					setYearInChart(n);
 					switchChart(BarChart.class);
 				}
+				
+				if(infoPane != null) {
+					panelGraph.getChildren().remove(infoPane);
+				}
+				
+		        try {
+
+					FXMLLoader loader = new FXMLLoader();
+					
+					// if the selected node represents a community (not a user)
+					if(isNodeKeyword(n)) {
+						loader.setLocation(Main.class.getResource("InfoKeywordView.fxml"));
+						infoPane = loader.load();
+						InfoKeywordController keywordController = (InfoKeywordController) loader.getController();
+						keywordController.initInfoUser(dblpg, n);
+					} else { // if not, it represents a user
+						loader.setLocation(Main.class.getResource("InfoYearView.fxml"));
+						infoPane = loader.load();
+						InfoYearController yearController = (InfoYearController) loader.getController();
+						yearController.initInfoUser(dblpg, n);
+					}
+					FxViewPanel.positionInArea(infoPane, me.getX(), me.getY(), 0, 0, 0, Insets.EMPTY, HPos.LEFT, VPos.CENTER, true);
+					
+					panelGraph.getChildren().add(infoPane);
+					
+					infoPane.getStylesheets().clear();
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
 				dblpg.hideUnselectedNode(n);
+				dblpg.hideEdgesLabel();
+				dblpg.showEdgesLabel(n);
 			} else {
 				cleanCharts();
+				panelGraph.getChildren().remove(infoPane);
+				infoPane = null;
+		
 				dblpg.showAllNode();
+				dblpg.hideEdgesLabel();
 			}
 		}
 	}

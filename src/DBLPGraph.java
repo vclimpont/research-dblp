@@ -88,7 +88,7 @@ public class DBLPGraph {
 			for(String key : art.getKeywords())
 			{
 				Integer count = keywordsCount.get(key);
-				if(count != null && count > 100)
+				if(count != null && count > 75 && count < 900)
 				{
 					// add this article in hashmap at the given year
 					addArticleToYear(art.getYear(), art);
@@ -248,7 +248,24 @@ public class DBLPGraph {
 			elem.setAttribute("ui.class",  cssType + "," + cssColor + "_" + TRANSPARENT + "," + TRANSPARENT);
 		} else {
 			elem.setAttribute("ui.class", cssType + "," + cssColor);
-		}		
+		}
+	}
+	
+	public void showEdgesLabel(Node selectedNode) {
+		for(Object o : selectedNode.edges().toArray())
+		{
+			Edge e = graph.getEdge(((Edge)o).getId());
+			double w = e.getNumber("weight");
+			e.setAttribute("ui.label", ""+(int)w);
+		}
+	}
+	
+	public void hideEdgesLabel() {
+		for(Object o : graph.edges().toArray())
+		{
+			Edge e = graph.getEdge(((Edge)o).getId());
+			e.removeAttribute("ui.label");
+		}
 	}
 	
 	public void hideUnselectedNode(Node selectedNode) {
