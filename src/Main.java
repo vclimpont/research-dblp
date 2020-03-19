@@ -28,12 +28,14 @@ import org.graphstream.ui.view.util.InteractiveElement;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -43,6 +45,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -218,7 +221,11 @@ public class Main extends Application {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        double chartHeight = screenBounds.getHeight() * 0.3;
+        
 		lineChart = new LineChart<Number,Number>(xAxis, yAxis);
+		lineChart.setPrefHeight(chartHeight);
         
 		yAxis.setLabel("Keywords occurrences");
 		xAxis.setLabel("Years");
@@ -231,7 +238,11 @@ public class Main extends Application {
         final CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        double chartHeight = screenBounds.getHeight() * 0.3;
+        
 		barChart = new BarChart<String,Number>(xAxis, yAxis);
+		barChart.setPrefHeight(chartHeight);
 		
 		yAxis.setLabel("Occurrences");
 		xAxis.setLabel("Keywords");
@@ -289,6 +300,8 @@ public class Main extends Application {
  		    	quit();
  		    }
  		});
+ 		
+ 		primaryStage.setMaximized(true);
 	}
 	
 	private void switchChart(Class chartType) {
