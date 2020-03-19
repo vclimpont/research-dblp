@@ -38,8 +38,12 @@ public class ArticleHandler extends DefaultHandler {
         
         if (qName.equals(tag_publication)) {
         	if(!publicationStack.empty()) {
-        		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
-        		this.writeArticleInFile(publicationStack.peek());
+        		Article art = Main.articles.get(publicationStack.peek().getId());
+        		if(art == null)
+        		{
+            		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
+            		this.writeArticleInFile(publicationStack.peek());
+        		}
                 this.publicationStack.pop();
         	}
         }

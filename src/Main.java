@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -179,7 +180,11 @@ public class Main extends Application {
 				ObjectInputStream ois = new ObjectInputStream(fis);
 				Article newArticle;
 				while((newArticle = (Article)ois.readObject()) != null) {
-					articles.put(newArticle.getId(), newArticle);
+					Article art = articles.get(newArticle.getId());
+					if(art == null)
+					{						
+						articles.put(newArticle.getId(), newArticle);
+					}
 				}
 				ois.close();
 				fis.close();
@@ -283,7 +288,19 @@ public class Main extends Application {
 		
 		// TODO : Noter les mots à rechercher dans un txt, les extraire et les entrer dans le ArrayList
 		// En attendant :
-		searchedWords.add("e");
+		String[] letters = {"e", "t", "a", "o", "i", "n", "s", "r", "h", "l", "d", "c", "u"};
+		for(int i = 0 ; i < 4 ; i++)
+		{
+			String l = "";
+			do
+			{
+				Random r = new Random();
+				int k = r.nextInt(letters.length);
+				l = letters[k];
+			}while(searchedWords.contains(l));
+			
+			searchedWords.add(l);
+		}
 		
 		if(isSaveFile())
 			setDataFromSaveFile();

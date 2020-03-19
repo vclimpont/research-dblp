@@ -88,7 +88,7 @@ public class DBLPGraph {
 			for(String key : art.getKeywords())
 			{
 				Integer count = keywordsCount.get(key);
-				if(count != null && count > 75 && count < 900)
+				if(count != null && count > 100 && count < 2500)
 				{
 					// add this article in hashmap at the given year
 					addArticleToYear(art.getYear(), art);
@@ -166,19 +166,19 @@ public class DBLPGraph {
 			}
 			else if(kc != null)
 			{
-				if(kc < 10)
+				if(kc < 50)
 				{
 					n.setAttribute("ui.class", type+",blue");
 				}
-				else if(kc < 50)
+				else if(kc < 100)
 				{
 					n.setAttribute("ui.class", type+",green");
 				}
-				else if(kc < 100)
+				else if(kc < 300)
 				{
 					n.setAttribute("ui.class", type+",yellow");
 				}
-				else if(kc < 500)
+				else if(kc < 1000)
 				{
 					n.setAttribute("ui.class", type+",orange");
 				}
