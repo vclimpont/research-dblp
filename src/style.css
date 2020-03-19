@@ -1,40 +1,62 @@
+graph {
+	fill-color: #F2E5C8;
+	fill-mode: plain;
+}
+
 /* Nodes type */
+node {
+	text-color : #4B4B4B;
+	text-style : bold;
+	text-font : Roboto;
+	text-alignment : center;
+}
+
 node.year {
 	shape: triangle;
+	text-size : 10;
+	text-offset : 3, 3;	
 }
 node.keyword {
-	shape: circle;
+	text-alignment : center;
+	text-size : 9;
+	text-style : bold;
+	text-offset : 4, -5;
 }
 
 /* Nodes colors */
 node.blue {
-	fill-color : blue;
+	fill-color : #60F7B9;
+	text-background-color : #60F7B9;
 	z-index : 2;
-	size : 15px;
+	size : 40px;
 }
 
 node.green {
-	fill-color : green;
+	fill-color : #89F760;
+	text-background-color : #89F760;
 	z-index : 3;
-	size : 20px;
+	size : 42px;
 }
 
 node.yellow {
-	fill-color : yellow;
+	fill-color : #F7F260;
+	text-background-color : #F7F260;
 	z-index : 4;
-	size : 25px;
+	size : 38px;
 }
 
 node.orange {
-	fill-color : orange;
+	fill-color : #FFA538;
+	text-background-color : #FFA538;
 	z-index : 5;
-	size : 30px;
+	size : 42px;
 }
 
 node.red {
-	fill-color : red;
+	fill-color : #FF2424;
+	text-background-color : #FF2424;
 	z-index : 6;
-	size : 35px;
+	size : 45px;
 }
 
 /* Nodes colors transparency */
@@ -60,15 +82,19 @@ node.red_transparent {
 
 /* Edges */
 edge {
-	arrow-size : 1px, 1px;
-	fill-color : #222222;
+	arrow-size : 0.1px, 0.1px;
+	fill-color : #7794A5;
 	text-alignment : under;
-	text-color : blue;
+	text-color : #4B4B4B;
+	text-style : bold;
+	text-font : Roboto;
+	text-size : 12;
 }
 
 /* Nodes and Edges Transparency */
 edge.transparent {
-	fill-color : #22222210;
+	fill-color : #ECE9E9; /*#22222210;*/
+	z-index : -2;
 }
 node.transparent {
 	text-mode: hidden;

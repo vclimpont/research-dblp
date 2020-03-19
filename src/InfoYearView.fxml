@@ -5,10 +5,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane id="yearPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="InfoYearController">
    <top>
-      <Label fx:id="yearLabel" alignment="BOTTOM_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #e6e6fa;" styleClass="username" BorderPane.alignment="CENTER" />
+      <Label fx:id="yearLabel" alignment="BOTTOM_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #e6e6fa;" styleClass="username" text="zfez" textAlignment="CENTER" textFill="#121343" BorderPane.alignment="CENTER">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
    </top>
    <center>
       <HBox style="-fx-background-color: white;" BorderPane.alignment="CENTER">

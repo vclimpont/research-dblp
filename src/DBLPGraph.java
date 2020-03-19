@@ -109,7 +109,7 @@ public class DBLPGraph {
 					{
 						Node n = graph.addNode(key);
 						n.setAttribute("ui.class", NODE_TYPE_KEYWORD);
-						n.setAttribute("ui.label", key);
+						n.setAttribute("ui.label", "  "+key.toUpperCase());
 					}
 					
 					// create an edge between keyword and year if it does not exist / otherwhise increment the weight
