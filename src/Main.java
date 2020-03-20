@@ -1,24 +1,15 @@
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Stack;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -26,9 +17,6 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.util.InteractiveElement;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -44,8 +32,11 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -54,12 +45,12 @@ public class Main extends Application {
 
 	// IO & API variables
 	public static final String SAVE_FILE = "articleSave.dblpsave";
-	private final int QUERY_H = 1000;
+	public final int QUERY_H = 1000;
 	private ArrayList<String> searchedWords; 
 
 	// Data variables
-	public static HashMap<String, Article> articles;
-	public static Stack<ApiThread> runningThread;
+	public HashMap<String, Article> articles;
+	public Stack<ApiThread> runningThread;
 	
 	// View variables
 	private Stage primaryStage;
@@ -67,6 +58,8 @@ public class Main extends Application {
 	private FxViewer viewerGraph;
 	private BorderPane mainPane;
 	private BorderPane infoPane;
+	private StackPane globalPane;
+	private ImageView loaderImageView;
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
@@ -81,7 +74,7 @@ public class Main extends Application {
 		// launch the application
 		launch(args);
     }
-	
+	/*
 	private void parseXml(String q, int h, int f) {
 		try {
     		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+h+"&f="+f);
@@ -131,7 +124,7 @@ public class Main extends Application {
 		}
  
 		return sb.toString();
-	}
+	}*/
 	
 	/**
 	 * Create threads which will get XMLs from DBLP and will add articles in the HashMap "articles"
@@ -143,19 +136,19 @@ public class Main extends Application {
 		objectOut = new ObjectOutputStream(fileOut);
 		
 		for(String aWord : searchedWords) {
-			for(int i = 0 ; i < 10 ; i ++) {
+			//for(int i = 0 ; i < 10 ; i ++) {
 				// Create a Thread
 				//	1st parameter refer to the h param in the query url, 2nd parameter refer to the f param
 				// 	See https://dblp.uni-trier.de/faq/13501473 to understand query url parameter
-				/*ApiThread at = new ApiThread(aWord, QUERY_H, QUERY_H * runningThread.size(), objectOut);
+				ApiThread at = new ApiThread(this, aWord);
 				runningThread.add(at);
-				at.start();*/
-				parseXml(aWord, QUERY_H, QUERY_H * i);
-			}
+				at.start();
+				//parseXml(aWord, QUERY_H, QUERY_H * i);
+			//}
 		}
 		
 
-		// Wait until all the thread have been stopped
+		/*// Wait until all the thread have been stopped
 		while(!runningThread.empty()) {
 			try {
 				// Wait a second
@@ -168,6 +161,7 @@ public class Main extends Application {
 
 	    objectOut.close();
         fileOut.close();
+        */
 	}
 	
 	/**
@@ -212,7 +206,7 @@ public class Main extends Application {
 	 * Initialize a graph with the articles get previously
 	 */
 	private void initGraph() {
-		dblpg = new DBLPGraph();
+		dblpg = new DBLPGraph(this);
 		dblpg.readArticles();
 
 		// Create a graph viewer, which will contains the graph
@@ -253,6 +247,15 @@ public class Main extends Application {
 		xAxis.setLabel("Keywords");
 	}
 
+	private void initLoader(){
+		try {
+			Image loaderImage = new Image(new FileInputStream("./loader.gif")); 
+			loaderImageView = new ImageView(loaderImage);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Setting up a panels, scene and stage for a first window
 	 */
@@ -261,20 +264,52 @@ public class Main extends Application {
 		initGraph();
 		initLineChart();
 		initBarChart();
+		initLoader();
 		
 		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
 
         panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
 		
+        globalPane = new StackPane();
+        
         mainPane = new BorderPane();
 		mainPane.setCenter(panelGraph);
 
 		mainPane.setBottom(lineChart);
 		
-		Scene scene = new Scene(mainPane);
+        globalPane.getChildren().add(mainPane);
+        globalPane.getChildren().add(loaderImageView);
+        
+		Scene scene = new Scene(globalPane);
 		primaryStage.setScene(scene);
 		
 		primaryStage.show();
+	}
+
+	public void updateGraph() {
+		Thread updateGraphThread = new Thread(new Runnable() {
+			@Override
+            public void run() {
+				Runnable updaterLoader = new Runnable() {
+                    @Override
+                    public void run() {
+                		globalPane.getChildren().remove(loaderImageView);
+                		initGraph();
+
+                		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
+                        panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
+
+                		mainPane.setCenter(panelGraph);
+                    }
+                };
+
+                try {
+                	Thread.sleep(1000);
+                } catch (InterruptedException ex) {}
+            	Platform.runLater(updaterLoader);
+			}
+		});
+		updateGraphThread.start();
 	}
 
 	@Override
@@ -286,8 +321,6 @@ public class Main extends Application {
 		runningThread = new Stack<>();
 		searchedWords = new ArrayList<String>();
 		
-		// TODO : Noter les mots à rechercher dans un txt, les extraire et les entrer dans le ArrayList
-		// En attendant :
 		String[] letters = {"e", "t", "a", "o", "i", "n", "s", "r", "h", "l", "d", "c", "u"};
 		for(int i = 0 ; i < 4 ; i++)
 		{
@@ -301,13 +334,32 @@ public class Main extends Application {
 			
 			searchedWords.add(l);
 		}
-		
-		if(isSaveFile())
-			setDataFromSaveFile();
-		else
-			setDataFromDblp();
-		
+
 		initStage();
+		
+		if(isSaveFile()) {
+			setDataFromSaveFile();
+			updateGraph();
+		} else {
+			Thread setLoaderThread = new Thread(new Runnable() {
+				@Override
+	            public void run() {
+					Runnable updaterLoader = new Runnable() {
+	                    @Override
+	                    public void run() {
+	            			try {
+								setDataFromDblp();
+								//updateGraph();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+	                    }
+	                };
+	            	Platform.runLater(updaterLoader);
+				}
+			});
+			setLoaderThread.start();
+		}
 		
 
  		// Force the application to quit after closing the window
@@ -321,7 +373,7 @@ public class Main extends Application {
  		primaryStage.setMaximized(true);
 	}
 	
-	private void switchChart(Class chartType) {
+	private void switchChart(Class<?> chartType) {
 		if(chartType.equals(BarChart.class)){
 			mainPane.setBottom(barChart);
 		} else {
@@ -368,6 +420,22 @@ public class Main extends Application {
 		}
 	}
 	
+	public FileOutputStream getFileOut() {
+		return fileOut;
+	}
+
+	public void setFileOut(FileOutputStream fileOut) {
+		this.fileOut = fileOut;
+	}
+
+	public ObjectOutputStream getObjectOut() {
+		return objectOut;
+	}
+
+	public void setObjectOut(ObjectOutputStream objectOut) {
+		this.objectOut = objectOut;
+	}
+
 	public boolean isNodeKeyword(Node n)
 	{
 		return ((String)(n.getAttribute("ui.class"))).contains(DBLPGraph.NODE_TYPE_KEYWORD);

@@ -15,12 +15,12 @@ public class ArticleHandler extends DefaultHandler {
 	private Stack<String> elementStack;
 	private Stack<Article> publicationStack;
 	
-	private ObjectOutputStream objectOut;
+	private Main appli;
 	
-	public ArticleHandler(ObjectOutputStream _objectOut) {
+	public ArticleHandler(Main _appli) {
 		elementStack = new Stack<String>();
 		publicationStack = new Stack<Article>();
-		objectOut = _objectOut;
+		appli = _appli;
 	}
 	
 	public void startElement(String namespaceURI, String localName, String qName, Attributes attributes) throws SAXException {
@@ -38,10 +38,10 @@ public class ArticleHandler extends DefaultHandler {
         
         if (qName.equals(tag_publication)) {
         	if(!publicationStack.empty()) {
-        		Article art = Main.articles.get(publicationStack.peek().getId());
+        		Article art = appli.articles.get(publicationStack.peek().getId());
         		if(art == null)
         		{
-            		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
+            		appli.articles.put(publicationStack.peek().getId(), publicationStack.peek());
             		this.writeArticleInFile(publicationStack.peek());
         		}
                 this.publicationStack.pop();
@@ -64,7 +64,9 @@ public class ArticleHandler extends DefaultHandler {
     
     private void writeArticleInFile(Article article) {
     	try {
-            objectOut.writeObject(article); 
+    		synchronized (appli.articles) {
+    			appli.getObjectOut().writeObject(article);
+    		}
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -2,11 +2,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Scanner;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -23,36 +23,54 @@ import org.xml.sax.SAXException;
 public class ApiThread extends Thread implements Runnable {
 
 	private String q;
-	private int h, f;
-	private ObjectOutputStream objectOut;
+	private Main appli;
 	
-	public ApiThread(String _q, int _h, int _f, ObjectOutputStream _objectOut) {
+	public ApiThread(Main _appli, String _q) {
+		appli = _appli;
 		q = _q;
-		h = _h;
-		f = _f;
-		objectOut = _objectOut;
+	}
+	
+	private void removeThread() {
+		
+		System.out.println("END THREAD " + q + " - nb : " + appli.runningThread.size());
+
+		appli.runningThread.removeElement(this);
+		if(appli.runningThread.size() == 0) {
+			try {
+				appli.getFileOut().close();
+				appli.getObjectOut().close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			appli.updateGraph();
+		}
+		
 	}
 
 	@Override
 	public void run(){
-		try {
-            
-    		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+h+"&f="+f);
-    		if(xmlString == null) {
-    			Main.runningThread.removeElement(this);
-    			return;
-    		}
-			SAXParserFactory factory = SAXParserFactory.newInstance();
-		  	SAXParser saxParser;
-  			saxParser = factory.newSAXParser();
-			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(objectOut));
-			Main.runningThread.removeElement(this);
-			
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			e.printStackTrace();
-			Main.runningThread.removeElement(this);
+		for(int i = 0 ; i < 10 ; i ++) {
+			try {
+	            //System.out.print(q + ", ");
+	    		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+appli.QUERY_H +"&f=" + appli.QUERY_H * i);
+	    		if(xmlString == null) {
+	    			//removeThread(true);
+	    			continue;
+	    		}
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+			  	SAXParser saxParser;
+	  			saxParser = factory.newSAXParser();
+				saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(appli));
+				//removeThread(false);
+				
+			} catch (SAXException | IOException | ParserConfigurationException e) {
+				e.printStackTrace();
+				//removeThread(true);
+			}
 		}
-		
+
+		removeThread();
 	}
 
 	private String getXmlFromUrl(String myURL) {
