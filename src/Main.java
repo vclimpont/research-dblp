@@ -24,6 +24,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -32,11 +33,13 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -59,7 +62,7 @@ public class Main extends Application {
 	private BorderPane mainPane;
 	private BorderPane infoPane;
 	private StackPane globalPane;
-	private ImageView loaderImageView;
+	private VBox loaderBox;
 	
 	private FileOutputStream fileOut;
 	private ObjectOutputStream objectOut;
@@ -247,10 +250,58 @@ public class Main extends Application {
 		xAxis.setLabel("Keywords");
 	}
 
-	private void initLoader(){
+	private void initLoader() {
 		try {
 			Image loaderImage = new Image(new FileInputStream("./loader.gif")); 
-			loaderImageView = new ImageView(loaderImage);
+			ImageView loaderImageView = new ImageView(loaderImage);
+
+			loaderBox = new VBox(10);
+			loaderBox.getChildren().add(loaderImageView);
+			
+			loaderBox.setAlignment(Pos.CENTER);
+			
+			Thread loadingArticleLoaderThread = new Thread(new Runnable() {
+				@Override
+	            public void run() {
+					Runnable loadingArticleLoaderRunnable = new Runnable() {
+	                    @Override
+	                    public void run() {
+	            			Label label = new Label("Loading articles, it may takes some time...");
+	            			label.setId("labelLoading");
+	            			if(globalPane.getChildren().contains(loaderBox))
+            					loaderBox.getChildren().add(label);
+	                    }
+	                };
+
+                	try {
+                		Thread.sleep(2500);
+                	} catch (Exception e) {}
+					
+	            	Platform.runLater(loadingArticleLoaderRunnable);
+				}
+			});
+			
+			Thread badConnectionLoaderThread = new Thread(new Runnable() {
+				@Override
+	            public void run() {
+					Runnable badConnectionLoaderRunnable = new Runnable() {
+	                    @Override
+	                    public void run() {
+	            			Label label = new Label("Loading seems long, check your internet connection");
+	            			if(globalPane.getChildren().contains(loaderBox)) {
+	            				loaderBox.getChildren().add(label);
+	            			}
+	                    }
+	                };
+
+                	try {
+                		Thread.sleep(2 * 60 * 1000);
+                	} catch (Exception e) {}
+	            	Platform.runLater(badConnectionLoaderRunnable);
+				}
+			});
+			loadingArticleLoaderThread.start();
+			badConnectionLoaderThread.start();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -278,7 +329,8 @@ public class Main extends Application {
 		mainPane.setBottom(lineChart);
 		
         globalPane.getChildren().add(mainPane);
-        globalPane.getChildren().add(loaderImageView);
+        globalPane.getChildren().add(loaderBox);
+        StackPane.setAlignment(loaderBox,Pos.CENTER);
         
 		Scene scene = new Scene(globalPane);
 		primaryStage.setScene(scene);
@@ -293,7 +345,7 @@ public class Main extends Application {
 				Runnable updaterLoader = new Runnable() {
                     @Override
                     public void run() {
-                		globalPane.getChildren().remove(loaderImageView);
+                		globalPane.getChildren().remove(loaderBox);
                 		initGraph();
 
                 		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
@@ -303,9 +355,6 @@ public class Main extends Application {
                     }
                 };
 
-                try {
-                	Thread.sleep(1000);
-                } catch (InterruptedException ex) {}
             	Platform.runLater(updaterLoader);
 			}
 		});
