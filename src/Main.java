@@ -1,23 +1,14 @@
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Stack;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
@@ -25,8 +16,6 @@ import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 import org.graphstream.ui.view.util.InteractiveElement;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -41,6 +30,8 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -54,8 +45,8 @@ public class Main extends Application {
 	private ArrayList<String> searchedWords; 
 
 	// Data variables
-	public static HashMap<String, Article> articles;
-	public static Stack<ApiThread> runningThread;
+	public HashMap<String, Article> articles;
+	public Stack<ApiThread> runningThread;
 	
 	// View variables
 	private Stage primaryStage;
@@ -77,8 +68,8 @@ public class Main extends Application {
 		// launch the application
 		launch(args);
     }
-	
-	private void parseXml(String q, int h, int f) {
+	/*
+	private void parseXml(String q, int h, int f, Thread _t) {
 		try {
     		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+h+"&f="+f);
     		if(xmlString == null) {
@@ -90,10 +81,9 @@ public class Main extends Application {
   			saxParser = factory.newSAXParser();
 			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(objectOut));
 			Main.runningThread.removeElement(this);
-			
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			e.printStackTrace();
-			Main.runningThread.removeElement(this);
+			Main.runningThread.removeElement(_t);
 		}
 	}
 	
@@ -128,6 +118,7 @@ public class Main extends Application {
  
 		return sb.toString();
 	}
+	*/
 	
 	/**
 	 * Create threads which will get XMLs from DBLP and will add articles in the HashMap "articles"
@@ -137,20 +128,32 @@ public class Main extends Application {
 
 		fileOut = new FileOutputStream (Main.SAVE_FILE);
 		objectOut = new ObjectOutputStream(fileOut);
-		
 		for(String aWord : searchedWords) {
 			for(int i = 0 ; i < 10 ; i ++) {
 				// Create a Thread
 				//	1st parameter refer to the h param in the query url, 2nd parameter refer to the f param
 				// 	See https://dblp.uni-trier.de/faq/13501473 to understand query url parameter
-				/*ApiThread at = new ApiThread(aWord, QUERY_H, QUERY_H * runningThread.size(), objectOut);
-				runningThread.add(at);
-				at.start();*/
-				parseXml(aWord, QUERY_H, QUERY_H * i);
+				ApiThread task = new ApiThread(this, aWord, QUERY_H, QUERY_H * i);
+				runningThread.add(task);
+				new Thread(task).start();
+				
+				//Platform.runLater(thread);
+				
+				//ApiThread at = new ApiThread(this, aWord, QUERY_H, QUERY_H * runningThread.size());
+				//runningThread.add(at);
+				//at.start();
+				
+				/*Thread t = new Thread() {
+					public void run() {
+						parseXml(aWord, QUERY_H, QUERY_H * Main.f, this);
+					}
+			    };
+			    runningThread.add(t);
+			    t.start();*/
+				//parseXml(aWord, QUERY_H, QUERY_H * i);
 			}
 		}
-		
-
+		/*
 		// Wait until all the thread have been stopped
 		while(!runningThread.empty()) {
 			try {
@@ -161,9 +164,10 @@ public class Main extends Application {
 				e.printStackTrace();
 			}
 		}
-
+    
 	    objectOut.close();
         fileOut.close();
+        */
 	}
 	
 	/**
@@ -180,6 +184,7 @@ public class Main extends Application {
 				}
 				ois.close();
 				fis.close();
+				System.out.println("nb article : " + articles.size());
 			} catch (IOException | ClassNotFoundException e) {
 				System.err.println("End of file reached");
 			}
@@ -204,7 +209,7 @@ public class Main extends Application {
 	 * Initialize a graph with the articles get previously
 	 */
 	private void initGraph() {
-		dblpg = new DBLPGraph();
+		dblpg = new DBLPGraph(this);
 		dblpg.readArticles();
 
 		// Create a graph viewer, which will contains the graph
@@ -241,17 +246,28 @@ public class Main extends Application {
 	 * Setting up a panels, scene and stage for a first window
 	 */
 	private void initStage() {
+		ImageView imageView = null;
+		try {
+			Image loadingImage = new Image(new FileInputStream("./loading.gif")); 
+			imageView = new ImageView(loadingImage); 
+		      
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
+		
 
-		initGraph();
+		//initGraph();
 		initLineChart();
 		initBarChart();
 		
-		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
-
-        panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
+		//panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
+        //panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
 		
         mainPane = new BorderPane();
-		mainPane.setCenter(panelGraph);
+        if(imageView != null) {
+        	mainPane.setCenter(imageView);
+        }
+		//mainPane.setCenter(panelGraph);
 
 		mainPane.setBottom(lineChart);
 		
@@ -260,6 +276,32 @@ public class Main extends Application {
 		
 		primaryStage.show();
 	}
+	
+	public void updateGraph() {
+		Thread setLoaderThread = new Thread(new Runnable() {
+			@Override
+            public void run() {
+				Runnable updaterLoader = new Runnable() {
+                    @Override
+                    public void run() {
+                		initGraph();
+
+                		panelGraph = (FxViewPanel) viewerGraph.addDefaultView(false, new FxGraphRenderer());
+                        panelGraph.addEventFilter(MouseEvent.MOUSE_PRESSED, new MousePressGraph());
+
+                		mainPane.setCenter(panelGraph);
+                    }
+                };
+
+                try {
+                	Thread.sleep(1000);
+                } catch (InterruptedException ex) {}
+            	Platform.runLater(updaterLoader);
+			}
+		});
+		setLoaderThread.start();
+	}
+	
 
 	@Override
 	public void start(Stage _primaryStage) throws Exception {
@@ -273,15 +315,16 @@ public class Main extends Application {
 		// TODO : Noter les mots à rechercher dans un txt, les extraire et les entrer dans le ArrayList
 		// En attendant :
 		searchedWords.add("e");
+
 		
-		if(isSaveFile())
-			setDataFromSaveFile();
-		else
+		//if(isSaveFile()) {
+		//	setDataFromSaveFile();
+		//} else {
 			setDataFromDblp();
-		
+		//}
+
 		initStage();
 		
-
  		// Force the application to quit after closing the window
  		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
  		    @Override
@@ -291,7 +334,7 @@ public class Main extends Application {
  		});
 	}
 	
-	private void switchChart(Class chartType) {
+	private void switchChart(Class<?> chartType) {
 		if(chartType.equals(BarChart.class)){
 			mainPane.setBottom(barChart);
 		} else {
@@ -330,6 +373,22 @@ public class Main extends Application {
 		lineChart.getData().add(series);
 	}
 	
+	public ObjectOutputStream getObjectOut() {
+		return objectOut;
+	}
+
+	public void setObjectOut(ObjectOutputStream objectOut) {
+		this.objectOut = objectOut;
+	}
+
+	public FileOutputStream getFileOut() {
+		return fileOut;
+	}
+
+	public void setFileOut(FileOutputStream fileOut) {
+		this.fileOut = fileOut;
+	}
+
 	public void cleanCharts() {
 		if(mainPane.getBottom() instanceof LineChart) {
 			lineChart.getData().remove(0, lineChart.getData().size());

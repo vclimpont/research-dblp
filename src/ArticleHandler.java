@@ -1,4 +1,5 @@
-import java.io.ObjectOutputStream;
+import java.io.NotActiveException;
+import java.util.Scanner;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
@@ -15,12 +16,15 @@ public class ArticleHandler extends DefaultHandler {
 	private Stack<String> elementStack;
 	private Stack<Article> publicationStack;
 	
-	private ObjectOutputStream objectOut;
-	
-	public ArticleHandler(ObjectOutputStream _objectOut) {
+	//private ObjectOutputStream objectOut;
+	private Main appli;
+	private ApiThread thread;
+
+	public ArticleHandler(Main _appli, ApiThread t) {
 		elementStack = new Stack<String>();
 		publicationStack = new Stack<Article>();
-		objectOut = _objectOut;
+		appli = _appli;
+		thread = t;
 	}
 	
 	public void startElement(String namespaceURI, String localName, String qName, Attributes attributes) throws SAXException {
@@ -38,15 +42,15 @@ public class ArticleHandler extends DefaultHandler {
         
         if (qName.equals(tag_publication)) {
         	if(!publicationStack.empty()) {
-        		Main.articles.put(publicationStack.peek().getId(), publicationStack.peek());
-        		this.writeArticleInFile(publicationStack.peek());
+        		thread.articlesTmp.put(publicationStack.peek().getId(), publicationStack.peek());
+        		
+        		writeArticleInFile(publicationStack.peek());
                 this.publicationStack.pop();
         	}
         }
     }
     
     public void characters(char[] ch, int start, int length) throws SAXException {
-
     	if(!publicationStack.empty() && !elementStack.empty()) {
     		if(elementStack.peek().equals(tag_title)) {
         		publicationStack.peek().setTitle(new String(ch, start, length));
@@ -60,9 +64,11 @@ public class ArticleHandler extends DefaultHandler {
     
     private void writeArticleInFile(Article article) {
     	try {
-            objectOut.writeObject(article); 
+    		//appli.getObjectOut().writeObject(article);
+        //} catch(NotActiveException nae) {
+        //	System.err.println("NotActiveException");
         } catch (Exception e) {
-            e.printStackTrace();
+        	e.printStackTrace();
         }
     }
 }

@@ -2,11 +2,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -15,45 +15,71 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javafx.concurrent.Task;
+
 /**
  * PLUS UTILISEE
  *
  */
 
-public class ApiThread extends Thread implements Runnable {
+public class ApiThread extends Task<Void> {
 
+	private Main appli;
 	private String q;
 	private int h, f;
-	private ObjectOutputStream objectOut;
+	public HashMap<String, Article> articlesTmp;
 	
-	public ApiThread(String _q, int _h, int _f, ObjectOutputStream _objectOut) {
+	public ApiThread(Main _appli, String _q, int _h, int _f) {
+		appli = _appli;
 		q = _q;
 		h = _h;
 		f = _f;
-		objectOut = _objectOut;
+	}
+	
+	private void removeThread() {
+		appli.updateGraph();
+		
+		appli.articles.putAll(articlesTmp); 
+		
+		System.out.println("END THREAD ");
+
+		appli.runningThread.removeElement(this);
+		
+		if(appli.runningThread.size() == 0) {
+			System.out.println("Close streams");
+			try {
+				appli.getFileOut().close();
+				appli.getObjectOut().close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
-	@Override
+	/*@Override
 	public void run(){
+		this.articlesTmp = new HashMap<String, Article>();
 		try {
             
     		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+h+"&f="+f);
     		if(xmlString == null) {
-    			Main.runningThread.removeElement(this);
+    			removeThread();
     			return;
     		}
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 		  	SAXParser saxParser;
   			saxParser = factory.newSAXParser();
-			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(objectOut));
-			Main.runningThread.removeElement(this);
+
+			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(appli, this));
+
+			removeThread();
 			
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			e.printStackTrace();
-			Main.runningThread.removeElement(this);
+			removeThread();
 		}
 		
-	}
+	}*/
 
 	private String getXmlFromUrl(String myURL) {
 		StringBuilder sb = new StringBuilder();
@@ -85,5 +111,30 @@ public class ApiThread extends Thread implements Runnable {
 		}
  
 		return sb.toString();
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		this.articlesTmp = new HashMap<String, Article>();
+		try {
+            
+    		String xmlString = getXmlFromUrl("https://dblp.org/search/publ/api?q="+q+"&h="+h+"&f="+f);
+    		if(xmlString == null) {
+    			removeThread();
+    			return null;
+    		}
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+		  	SAXParser saxParser;
+  			saxParser = factory.newSAXParser();
+
+			saxParser.parse(new InputSource(new StringReader(xmlString)), new ArticleHandler(appli, this));
+
+			removeThread();
+			
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			e.printStackTrace();
+			removeThread();
+		}
+		return null;
 	}
 }

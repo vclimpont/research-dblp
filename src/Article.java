@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Article implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7952591668490158605L;
 	private String id;
 	private String title;
 	private String year;

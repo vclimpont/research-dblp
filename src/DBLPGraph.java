@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -16,9 +19,11 @@ public class DBLPGraph {
 	private HashMap<String, ArrayList<Article>> yearToArticles; // Associate a date to a list of articles
 	private HashMap<String, Integer> keywordsCount;
 	private HashMap<String, Integer> yearsCount;
+	private Main appli;
 	
-	public DBLPGraph()
+	public DBLPGraph(Main _appli)
 	{
+		this.appli = _appli;
 		graph = new SingleGraph("DBLPGraph");
 		graph.setAttribute("ui.stylesheet", "url('file://.//src//style.css')");
 		keysToArticles = new HashMap<String, ArrayList<Article>>();
@@ -43,9 +48,9 @@ public class DBLPGraph {
 	
 	private void keywordProcessing()
 	{
-		for(String id : Main.articles.keySet()) 
+		for(String id : appli.articles.keySet()) 
 		{
-			Article art = Main.articles.get(id);
+			Article art = appli.articles.get(id);
 			for(String k : art.getKeywords())
 			{
 				Integer count = keywordsCount.get(k);
@@ -80,9 +85,9 @@ public class DBLPGraph {
 	{
 		keywordProcessing();
 		
-		for(String id : Main.articles.keySet())
+		for(String id : appli.articles.keySet())
 		{
-			Article art = Main.articles.get(id);
+			Article art = appli.articles.get(id);
 			 
 			// for each keyword of this article
 			for(String key : art.getKeywords())
