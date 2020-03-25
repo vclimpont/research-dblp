@@ -146,19 +146,19 @@ public class DBLPGraph {
 			Integer kc = keywordsCount.get(n.getId());
 			if(yc != null)
 			{
-				if(yc < 10)
+				if(yc < 100)
 				{
 					n.setAttribute("ui.class", type+",blue");
 				}
-				else if(yc < 20)
+				else if(yc < 500)
 				{
 					n.setAttribute("ui.class", type+",green");
 				}
-				else if(yc < 30)
+				else if(yc < 1000)
 				{
 					n.setAttribute("ui.class", type+",yellow");
 				}
-				else if(yc < 40)
+				else if(yc < 5000)
 				{
 					n.setAttribute("ui.class", type+",orange");
 				}
