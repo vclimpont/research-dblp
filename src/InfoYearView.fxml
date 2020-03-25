@@ -28,8 +28,8 @@
             </VBox>
             <VBox>
                <children>
-                  <Label fx:id="nbKeywordsLabel" prefHeight="17.0" prefWidth="34.0" />
-                  <Label fx:id="nbArticlesLabel" prefHeight="17.0" prefWidth="34.0" />
+                  <Label fx:id="nbKeywordsLabel" />
+                  <Label fx:id="nbArticlesLabel" />
                </children>
             </VBox>
          </children>

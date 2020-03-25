@@ -438,7 +438,9 @@ public class Main extends Application {
 			String year = selectedYear.getId();
 			String keyword = n.getId(); 
 			Edge e = dblpg.getGraph().getEdge(keyword + year);
-			int amountOccurrences = (int)e.getNumber("weight");
+			int amountOccurrences = 0;
+			if(e != null)
+				amountOccurrences = (int)e.getNumber("weight");
 
 			series.getData().add(new XYChart.Data<String, Number>(keyword, (Number)amountOccurrences));
 		});
