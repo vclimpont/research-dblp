@@ -11,6 +11,8 @@ Connections between articles keywords and years are represented as nodes in a he
 
 Weighted edges are created between keywords nodes *Kn* and years nodes *Yn* for each article that was published in year *Y* and containing keywords *K*.
 
+![Edge connection](https://github.com/vclimpont/research-dblp/blob/master/Images/edgeconnection.png)
+
 The size and color of nodes are based on their "popularity" within the graph :
 * A year node's size and color are relative to the number of articles published this year
 * A keyword node's size and color are relative to the number of articles containing this keyword.
@@ -20,7 +22,17 @@ Each node in the graph can be selected on click :
 * On a year node, it gives the user access to :
   * Every keywords mentioned this year
   * Number of articles published this year
+   
+![Year details](https://github.com/vclimpont/research-dblp/blob/master/Images/yeardetails.png)
+
+
+![Year infos](https://github.com/vclimpont/research-dblp/blob/master/Images/yearpop.png)
 
 * On a keyword node, it gives the user access to :
   * Every years in which at least one article published contained this keyword
   * Number of articles containing this keyword
+  
+![Keyword details](https://github.com/vclimpont/research-dblp/blob/master/Images/keyworddetails.png)
+
+
+![Keyword infos](https://github.com/vclimpont/research-dblp/blob/master/Images/keywordpop.png)
